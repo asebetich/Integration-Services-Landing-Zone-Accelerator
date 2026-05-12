@@ -37,7 +37,7 @@
                             "name": "regionId",
                             "type": "Microsoft.Common.TextBox",
                             "label": "Region Id",
-                            "defaultValue": "uksouth",
+                            "defaultValue": "westus",
                             "toolTip": "",
                             "constraints": {
                                 "required": false,

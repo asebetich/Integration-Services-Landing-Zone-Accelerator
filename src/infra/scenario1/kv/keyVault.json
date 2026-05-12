@@ -39,11 +39,11 @@
                     "virtualNetworkRules": [
 /*
                         {
-                            "id": "[concat(parameters('virtualnetworks_vnet_ais_dev_uksouth_01_externalid'), '/subnets/snet-ais-frontend-dev-uksouth-01')]",
+                            "id": "[concat(parameters('virtualnetworks_vnet_ais_dev_westus_01_externalid'), '/subnets/snet-ais-frontend-dev-westus-01')]",
                             "ignoreMissingVnetServiceEndpoint": false
                         },
                         {
-                            "id": "[concat(parameters('virtualnetworks_vnet_ais_dev_uksouth_01_externalid'), '/subnets/snet-ais-backend-dev-uksouth-01')]",
+                            "id": "[concat(parameters('virtualnetworks_vnet_ais_dev_westus_01_externalid'), '/subnets/snet-ais-backend-dev-westus-01')]",
                             "ignoreMissingVnetServiceEndpoint": false
                         }
 */
