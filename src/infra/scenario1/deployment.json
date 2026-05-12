@@ -52,11 +52,11 @@
                 "description": "API Mangement Administrator Email"
             }
         },
-        "apimOrganisation": {
+        "apimOrganization": {
             "type": "string",
-            "defaultValue": "Organisation",
+            "defaultValue": "Organization",
             "metadata": {
-                "description": "API Mangement Organsiation Name"
+                "description": "API Mangement Organization Name"
             }
         }
     },
@@ -86,7 +86,7 @@
             "capacity": "1",
             "identity": "None",
             "adminEmail": "[parameters('apimAdminEmail')]",
-            "organisation": "[parameters('apimOrganisation')]"
+            "organization": "[parameters('apimorganization')]"
 
         },
 
