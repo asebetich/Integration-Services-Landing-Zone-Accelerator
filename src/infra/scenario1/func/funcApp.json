@@ -24,7 +24,6 @@
         "hostingPlanName": "[concat('plan-',parameters('platform').systemPrefix,'-func-',parameters('platform').environment,'-',parameters('platform').region,'-01')]"
     },
     "resources": [
-        // Plan
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2022-03-01",
@@ -50,7 +49,6 @@
 
             }
         },
-        // Function App
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2021-02-01",

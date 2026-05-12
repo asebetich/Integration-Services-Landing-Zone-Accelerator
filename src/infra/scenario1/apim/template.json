@@ -27,7 +27,6 @@
                 "name": "[parameters('apim').tier]",
                 "capacity": 1
             },
-            //"identity": "[parameters('apim').identity]",
             
             "properties": {
                 "publisherEmail": "[parameters('apim').adminEmail]",

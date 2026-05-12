@@ -69,11 +69,8 @@
     },
 
     "variables": {
-        // Will reference the standard templates when using the "Deploy to Azure" button directly form the repository
         "srcUri": "[deployment().properties.templateLink.uri]",
 
-        // Makes it possible for people to local changes, execute the deployment from local files - but still keep the templateLink property / external template feature working
-        // "srcUri": "https://raw.githubusercontent.com/Azure/Integration-Services-Landing-Zone-Accelerator/main/src/infra/scenario1/",
 
         "platform": {
             "systemPrefix": "[parameters('systemPrefix')]",
@@ -152,11 +149,8 @@
 
     },
 
-    // TODO: Once all resources deployed, disable public access to
-    //    1) Storage account.
 
     "resources": [
-        // Key vault 
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -184,7 +178,6 @@
             ]
         },
 
-        // VNET
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -205,7 +198,6 @@
             }
         },
         
-        // Service Bus
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -233,7 +225,6 @@
             ]
         },
 
-        // Logic Apps
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -268,7 +259,6 @@
             ]
         },
 
-        // Function  Apps
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -304,7 +294,6 @@
             ]
         },
 
-        // Data Factory
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -341,7 +330,6 @@
         },
 
 
-        // apim
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -370,7 +358,6 @@
             ]
         },
 
-        // log analytics
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
@@ -396,7 +383,6 @@
             }
         },
 
-        // application insights
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2021-04-01",
