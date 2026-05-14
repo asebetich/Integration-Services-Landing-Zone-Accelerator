@@ -17,19 +17,19 @@
         "appInsights": {
             "type": "object"
         }
-
-
     },
     "functions": [],
     "variables": {
         "hostingPlanName": "[concat('plan-',parameters('platform').systemPrefix,'-logic-',parameters('platform').environment,'-',parameters('platform').region,'-01')]",
         "AzureFunctionsJobHost__extensionBundle__version": "[1.*, 2.0.0)",
         "stgPepName": "[concat('pep-',parameters('platform').systemPrefix,'-stg-{0}-',parameters('platform').environment,'-',parameters('platform').region,'-01')]",
-        "stgPepNicName": "[concat('nic-',parameters('platform').systemPrefix,'-stg-{0}-',parameters('platform').environment,'-',parameters('platform').region,'-01')]"
-
+        "stgPepNicName": "[concat('nic-',parameters('platform').systemPrefix,'-stg-{0}-',parameters('platform').environment,'-',parameters('platform').region,'-01')]",
+        "storageBlobDataOwnerRoleId": "b7e6dc6d-f1e8-4753-8033-0f276bb0955b",
+        "storageFileDataPrivilegedContributorRoleId": "69566ab7-960f-475b-8e7c-b3118f30c6bd",
+        "storageQueueDataContributorRoleId": "974c5e8b-45b9-4653-ba55-5f855dd0fb88",
+        "storageTableDataContributorRoleId": "0a9a7e1f-b9d0-4cc4-a60d-0319b160aaa3"
     },
     "resources": [
-
         {
             "apiVersion": "2023-01-01",
             "type": "Microsoft.Storage/storageAccounts",
@@ -40,12 +40,12 @@
             "sku": {
                 "name": "Standard_LRS"
             },
-
             "properties": {
                 "publicNetworkAccess": "Enabled",
                 "supportsHttpsTrafficOnly": true,
                 "minimumTlsVersion": "TLS1_2",
-                "allowSharedKeyAccess": true,
+                "allowSharedKeyAccess": false,
+                "allowBlobPublicAccess": false,
                 "networkAcls": {
                     "resourceAccessRules": [],
                     "bypass": "AzureServices",
@@ -55,11 +55,9 @@
                 }
             }
         },
-
-
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2022-05-01",
+            "apiVersion": "2023-01-01",
             "name": "[concat(parameters('storage').name, '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
@@ -80,7 +78,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2022-05-01",
+            "apiVersion": "2023-01-01",
             "name": "[concat(parameters('storage').name, '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
@@ -90,8 +88,7 @@
                 "tier": "Standard"
             },
             "properties": {
-                "protocolSettings": {
-                },
+                "protocolSettings": {},
                 "shareDeleteRetentionPolicy": {
                     "enabled": true,
                     "days": 7
@@ -100,7 +97,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/queueServices",
-            "apiVersion": "2022-05-01",
+            "apiVersion": "2023-01-01",
             "name": "[concat(parameters('storage').name, '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
@@ -113,7 +110,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices",
-            "apiVersion": "2022-05-01",
+            "apiVersion": "2023-01-01",
             "name": "[concat(parameters('storage').name, '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
@@ -124,7 +121,20 @@
                 }
             }
         },
-
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+            "apiVersion": "2023-01-01",
+            "name": "[concat(parameters('storage').name, '/default/', parameters('logicApp').name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storage').name, 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
+            ],
+            "properties": {
+                "accessTier": "TransactionOptimized",
+                "shareQuota": 5120,
+                "enabledProtocols": "SMB"
+            }
+        },
         {
             "location": "[parameters('platform').region]",
             "name": "[format(variables('stgPepName'),'blob')]",
@@ -177,8 +187,6 @@
                 "registrationEnabled": false
             }
         },
-
-
         {
             "location": "[parameters('platform').region]",
             "name": "[format(variables('stgPepName'),'table')]",
@@ -205,7 +213,6 @@
                 "[resourceId('Microsoft.Web/sites',parameters('logicApp').name)]"
             ]
         },
-
         {
             "type": "Microsoft.Network/privateDnsZones",
             "apiVersion": "2018-09-01",
@@ -216,7 +223,6 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Network/privateEndpoints',format(variables('stgPepName'),'table'))]"
             ]
-
         },
         {
             "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
@@ -233,8 +239,6 @@
                 "registrationEnabled": false
             }
         },
-
-
         {
             "location": "[parameters('platform').region]",
             "name": "[format(variables('stgPepName'),'file')]",
@@ -261,8 +265,6 @@
                 "[resourceId('Microsoft.Web/sites',parameters('logicApp').name)]"
             ]
         },
-
-
         {
             "type": "Microsoft.Network/privateDnsZones",
             "apiVersion": "2018-09-01",
@@ -273,7 +275,6 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Network/privateEndpoints',format(variables('stgPepName'),'file'))]"
             ]
-
         },
         {
             "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
@@ -290,7 +291,6 @@
                 "registrationEnabled": false
             }
         },
-
         {
             "location": "[parameters('platform').region]",
             "name": "[format(variables('stgPepName'),'queue')]",
@@ -317,8 +317,6 @@
                 "[resourceId('Microsoft.Web/sites',parameters('logicApp').name)]"
             ]
         },
-
-
         {
             "type": "Microsoft.Network/privateDnsZones",
             "apiVersion": "2018-09-01",
@@ -329,7 +327,6 @@
             "dependsOn": [
                 "[resourceId('Microsoft.Network/privateEndpoints',format(variables('stgPepName'),'queue'))]"
             ]
-
         },
         {
             "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
@@ -369,7 +366,6 @@
             "tags": {},
             "dependsOn": [
                 "[resourceId('Microsoft.Web/sites',parameters('logicApp').name)]"
-
             ]
         },
         {
@@ -382,11 +378,9 @@
             "dependsOn": [
                 "[concat('pep-',parameters('platform').systemPrefix,'-logic-',parameters('platform').environment,'-',parameters('platform').region,'-01')]"
             ]
-
         },
-
         {
-            "apiVersion": "2018-11-01",
+            "apiVersion": "2022-09-01",
             "name": "[variables('hostingPlanName')]",
             "type": "Microsoft.Web/serverfarms",
             "location": "[parameters('platform').region]",
@@ -407,19 +401,15 @@
             }
         },
         {
-            "apiVersion": "2018-11-01",
+            "apiVersion": "2022-09-01",
             "name": "[parameters('logicApp').name]",
             "type": "Microsoft.Web/sites",
             "kind": "functionapp,workflowapp",
             "location": "[parameters('platform').region]",
-            "tags": {
-
-            },
+            "tags": {},
             "dependsOn": [
-
                 "[concat('Microsoft.Web/serverfarms/', variables('hostingPlanName'))]",
                 "[concat('Microsoft.Storage/storageAccounts/', parameters('storage').name)]"
-
             ],
             "properties": {
                 "name": "[parameters('logicApp').name]",
@@ -435,19 +425,19 @@
                         },
                         {
                             "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                            "value": "~14"
+                            "value": "~18"
                         },
                         {
-                            "name": "AzureWebJobsStorage",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storage').name,';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name), '2023-01-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                            "name": "AzureWebJobsStorage__accountName",
+                            "value": "[parameters('storage').name]"
                         },
                         {
-                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',parameters('storage').name,';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name), '2023-01-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING__accountName",
+                            "value": "[parameters('storage').name]"
                         },
                         {
                             "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[concat(toLower(parameters('logicApp').name), 'b184')]"
+                            "value": "[parameters('logicApp').name]"
                         },
                         {
                             "name": "AzureFunctionsJobHost__extensionBundle__id",
@@ -482,6 +472,66 @@
             },
             "identity": {
                 "type": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name), resourceId('Microsoft.Web/sites', parameters('logicApp').name), variables('storageBlobDataOwnerRoleId'))]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('storage').name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('logicApp').name)]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageBlobDataOwnerRoleId'))]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('logicApp').name), '2022-09-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name), resourceId('Microsoft.Web/sites', parameters('logicApp').name), variables('storageFileDataPrivilegedContributorRoleId'))]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('storage').name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('logicApp').name)]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageFileDataPrivilegedContributorRoleId'))]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('logicApp').name), '2022-09-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name), resourceId('Microsoft.Web/sites', parameters('logicApp').name), variables('storageQueueDataContributorRoleId'))]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('storage').name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('logicApp').name)]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageQueueDataContributorRoleId'))]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('logicApp').name), '2022-09-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name), resourceId('Microsoft.Web/sites', parameters('logicApp').name), variables('storageTableDataContributorRoleId'))]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts/', parameters('storage').name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('logicApp').name)]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storage').name)]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('storageTableDataContributorRoleId'))]",
+                "principalId": "[reference(resourceId('Microsoft.Web/sites', parameters('logicApp').name), '2022-09-01', 'Full').identity.principalId]",
+                "principalType": "ServicePrincipal"
             }
         }
     ],
