@@ -76,16 +76,8 @@
                             "value": "[parameters('storage').name]"
                         },
                         {
-                            "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-                            "value": "[concat('ResourceId=/subscriptions/',subscription().subscriptionId,'/resourceGroups/',resourceGroup().name,'/providers/Microsoft.Storage/storageAccounts/',parameters('storage').name,';')]"
-                        },
-                        {
                             "name": "WEBSITE_SKIP_CONTENTSHARE_VALIDATION",
                             "value": "1"
-                        },
-                        {
-                            "name": "WEBSITE_CONTENTSHARE",
-                            "value": "[toLower(parameters('funcApp').name)]"
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
